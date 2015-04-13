@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+
+<style>
+.link {
+    stroke: #333;
+    stroke-opacity: .6;
+}
+</style>
+
+<script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
+
+<script>
+    var w = 800;
+    var h = 800;
+
+    var nodes = [
+        {id:0, label:"安倍", t:"p", position:"center",fixed:true, x:400, y:400},
+        {id:1, label:"ブログ", t:"t"},
+        {id:2, label:"海江田", t:"p"},
+        {id:3, label:"js", t:"t"},
+        {id:4, label:"橋下", t:"p"},
+        {id:5, label:"NLP", t:"t"},
+        {id:6, label:"ML", t:"t"}
+    ];
+
+    var links = [
+        {source:0, target:1},
+        {source:0, target:2},
+        {source:0, target:3},
+        {source:3, target:4},
+        {source:3, target:5},
+        {source:3, target:6},
+        {source:6, target:6}
+    ];
+
+    var title_name = ["foobaa"];
+
+    var force = d3.layout.force()
+            .nodes(nodes)
+            .links(links)
+            .size([w, h])
+            .linkStrength(0.1)
+            .friction(0.9)
+            .linkDistance(50)
+            .chargeDistance(100)
+            .charge(-1000)
+            .gravity(0.05) /*0.1*/
+            /*.theta(0.8)*/
+            .alpha(0)
+            .start();
+
+    var svg = d3.select("body").append("svg").attr({width:w, height:h});
+
+    var link = svg.selectAll("line")
+            .data(links)
+            .enter()
+            .append("line")
+            .style({stroke: "#ccc",
+                "stroke-width": 1});
+
+    var node = svg.selectAll("circle")
+            .data(nodes)
+            .enter()
+            .append("circle")
+            .attr({r:15,opacity:0.5})
+            .style({fill:function(d,i){
+                 if (d.t == "p"){
+                    return "red" ;
+                }else{
+                     return "green";
+                 }
+            }})
+            .call(force.drag);
+
+    var label = svg.selectAll("text")
+            .data(nodes)
+            .enter()
+            .append("text")
+            .attr({"text-ancher":"middle","fill":"black"})
+            .style({"font-size":14})
+            .text(function(d){return d.label})
+            .call(force.drag);
+
+    force.on("tick", function() {
+        link.attr({x1: function(d) { return d.source.x; },
+            y1: function(d) { return d.source.y; },
+            x2: function(d) { return d.target.x; },
+            y2: function(d) { return d.target.y; }});
+        node.attr({cx: function(d) { return d.x; },
+            cy: function(d) { return d.y; }});
+        label.attr({x:function(d){return d.x-7;},
+                    y: function(d){return d.y+7;}});
+    });
+
+</script>
+
+</body>
+</html>
